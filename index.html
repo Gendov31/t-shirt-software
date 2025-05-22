@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="bg">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Поръчка на персонализирана тениска с карикатура</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <header class="form-header">
+      <div class="logo-container">
+        <img
+          src="https://cdn.shopify.com/s/files/1/0842/0933/6585/files/79a1977341c61799876cc9166fdc4dfe_fc049495-fd77-475b-a9b3-896ef56c3098.png?v=1743430786"
+          alt="Лого" class="logo">
+      </div>
+    </header>
+
+    <!-- Прогрес бар -->
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress" id="progress"></div>
+
+        <div class="step-wrapper">
+          <div class="step active">1</div>
+          <span class="step-label active">Качи снимка</span>
+        </div>
+        <div class="step-wrapper">
+          <div class="step">2</div>
+          <span class="step-label">Детайли</span>
+        </div>
+        <div class="step-wrapper">
+          <div class="step">3</div>
+          <span class="step-label">Преглед</span>
+        </div>
+        <div class="step-wrapper">
+          <div class="step">4</div>
+          <span class="step-label">Плащане</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Контейнер за формата -->
+    <div class="form-container">
+      <!-- Стъпка 1: Качи снимка -->
+      <div class="form-step" id="step1">
+        <h2>Качи своя снимка</h2>
+        <p>Ще използваме тази снимка, за да създадем твоя персонализирана карикатура.</p>
+
+        <div class="upload-container" id="upload-area">
+          <div class="upload-prompt">
+            <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <p>Провлачете и пуснете снимката тук или <span class="browse-btn">изберете файл</span></p>
+            <p class="upload-info">Поддържани формати: JPEG, PNG (макс. 10MB)</p>
+          </div>
+          <input type="file" id="file-upload" accept="image/jpeg, image/png" hidden>
+          <div class="preview-container" id="preview-container" style="display: none;">
+            <img id="image-preview" src="#" alt="Преглед">
+            <button class="remove-btn" id="remove-btn">Премахни</button>
+          </div>
+        </div>
+
+        <div class="form-nav">
+          <button class="btn btn-next" id="step1-next" disabled>Продължи</button>
+        </div>
+      </div>
+
+      <!-- Стъпка 2: Детайли -->
+      <div class="form-step" id="step2" style="display: none;">
+        <h2>Детайли за карикатурата</h2>
+
+        <div class="form-group">
+          <div class="label-row">
+            <label for="scene-description">Описание на сцената</label>
+          </div>
+          <textarea id="scene-description" rows="4"
+            placeholder="Опиши как искаш да изглежда твоята карикатура върху тениската..." required></textarea>
+          <div id="descriptionError" style="display:none; color: red; margin-top: 5px;">
+            Описанието трябва да е поне 8 символа.
+          </div>
+          <div class="form-group">
+            <label for="color-selection">Избери цвят</label>
+            <select id="color-selection" required>
+              <option value="">-- Избери цвят --</option>
+              <option value="white">Бял</option>
+              <option value="black">Черен</option>
+            </select>
+            <div id="colorError" style="display:none; color: red; margin-top: 5px;">
+              Моля, избери цвят.
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Идеи за вдъхновение</label>
+          <p class="inspiration-tip">Кликни върху изображение, за да използваш описанието му</p>
+          <div class="inspiration-gallery" id="inspiration-gallery"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="caricature-style">Стил на карикатурата</label>
+          <div class="style-options" id="style-options"></div>
+          <div id="styleError" style="display:none; color: red;">Моля, изберете стил.</div>
+        </div>
+
+        <div class="form-nav">
+          <button class="btn btn-back" id="step2-back">Назад</button>
+          <button class="btn btn-next" id="step2-next">Продължи</button>
+        </div>
+      </div>
+
+      <!-- Стъпка 3: Преглед -->
+      <div class="form-step" id="step3" style="display: none;">
+        <h2>Прегледай своя дизайн</h2>
+        <p>Натисни бутона, за да генерираш визуализация на твоята тениска с карикатура.</p>
+      
+        <div class="preview-section">
+          <!-- Бутон за генериране -->
+          <button class="btn btn-primary" id="generatePreview">Генерирай преглед</button>
+      
+          <!-- Placeholder преди преглед -->
+          <div id="previewPlaceholder" style="text-align: center; margin-top: 20px;">
+            <p>Тук ще се появи визуализацията на твоята тениска.</p>
+          </div>
+      
+          <!-- Зареждане -->
+          <div id="previewLoading" style="display: none; justify-content: center; align-items: center; height: 300px;">
+            <!-- тук JS ще добави анимирано размазано изображение -->
+          </div>
+      
+          <!-- Резултат -->
+          <div id="previewResult" style="display: none; text-align: center; margin-top: 20px;">
+            <img id="caricaturePreview" src="" alt="Преглед" style="max-width: 100%; height: auto;" />
+          </div>
+      
+          <!-- Грешка -->
+          <div id="previewErrorContainer" style="display: none; text-align: center; margin-top: 20px;">
+            <p id="previewError" style="color: red;"></p>
+            <button class="btn btn-secondary" id="retryPreview">Опитай отново</button>
+          </div>
+          <div id="reviewsSlider" style="display: none;">
+            <div class="testimonial-slider swiper">
+              <div class="swiper-wrapper" id="testimonialWrapper"></div>
+            </div>
+          </div>
+        </div>
+      
+        <!-- Навигация -->
+        <div class="form-nav">
+          <button class="btn btn-back" id="step3-back">Назад</button>
+          <button class="btn btn-next" id="step3-next">Продължи към плащане</button>
+        </div>
+      </div>
+      
+
+
+      <!-- Стъпка 4: Контакт и доставка -->
+      <div class="form-step" id="step4" style="display: none;">
+        <h2>Контакт и доставка</h2>
+
+        <div class="form-section">
+          <h3>Контактна информация</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="full-name">Име и фамилия*</label>
+              <input type="text" id="full-name" required>
+              <span class="field-error" id="error-full-name" style="color: red; display: none;">Моля, въведете пълното си име.</span>
+            </div>
+            <div class="form-group">
+              <label for="email">Имейл адрес*</label>
+              <input type="email" id="email" required>
+              <span class="field-error" id="error-email" style="color: red; display: none;">Моля, въведете валиден имейл адрес.</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="phone">Телефонен номер*</label>
+            <input type="tel" id="phone" required>
+            <span class="field-error" id="error-phone" style="color: red; display: none;">Моля, въведете валиден телефонен номер.</span>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Адрес за доставка</h3>
+          <div class="form-group">
+            <label for="address">Улица и номер*</label>
+            <input type="text" id="address" required>
+            <span class="field-error" id="error-address" style="color: red; display: none;">Моля, въведете вашия адрес.</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="city">Град*</label>
+              <input type="text" id="city" required>
+              <span class="field-error" id="error-city" style="color: red; display: none;">Моля, въведете вашия град.</span>
+            </div>
+            <div class="form-group">
+              <label for="postal-code">Пощенски код*</label>
+              <input type="text" id="postal-code" required>
+              <span class="field-error" id="error-postal-code" style="color: red; display: none;">Моля, въведете вашия пощенски код.</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-group">
+            <input type="hidden" id="selectedSize" name="tshirt_size" value="">
+            <label for="selectSize">Размер на тениската</label>
+         <div class="size-options"></div>
+         <!-- динамично зареждане  -->
+            <div class="error-message" id="sizeError" style="color: red; display: none;">Моля, изберете размер.</div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-group">
+            <input type="hidden" id="selectedPaymentMethod" name="payment_method" value="card">
+            <label for="selectMethod">Начин на Плащане</label>
+            <div class="payment-options">
+              <div class="payment-option" id="paymentCard" onclick="selectPaymentMethod('card')">
+                <i class="fas fa-credit-card fa-2x"></i>
+                <h3>Карта</h3>
+                <p>Плати с дебитна или кредитна карта</p>
+              </div>
+              <div class="payment-option" id="paymentCOD" onclick="selectPaymentMethod('cod')">
+                <div class="payment-header">
+                  <i class="fas fa-money-bill-wave fa-2x"></i>
+                  <div class="tooltip-container">
+                    <i class="fas fa-question-circle tooltip-icon"></i>
+                    <div class="tooltip-text">
+                      Работим ръчно и с много сърце. Ако някой не вземе пратката си, всичко отива на вятъра. Таксата е, за да избегнем това.
+                    </div>
+                  </div>
+                </div>
+                <h3>Наложен платеж + 19.90 лв.</h3>
+                <p>Плати при доставка</p>
+              </div>
+            </div>
+            <div class="error-message" id="paymentError" style="color: red; display: none;">Моля, изберете метод на плащане.</div>
+          </div>
+        </div>
+        <div class="total-price-box" id="totalPriceBox" style="display: none;">
+          <span class="total-label">Обща Цена: + доставка</span>
+          <span class="total-amount" id="totalAmount">0.00 лв.</span>
+      </div>
+        
+        <div class="form-nav">
+          <button class="btn btn-back" id="step4-back">Назад</button>
+          <button class="btn btn-primary" id="submit-order">Поръчай</button>
+        </div>
+        
+
+  <div class="modal" id="order-modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2>Поръчката е приета!</h2>
+      <p>Благодарим ти за поръчката. Започваме с изработката на твоята карикатура веднага!</p>
+      <p>Потвърждение беше изпратено на имейла ти.</p>
+      <button class="btn btn-primary modal-btn">Затвори</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script src="/magic/getstyle.js"></script>
+  <script src="/magic/getinspiration.js"></script>
+  <script src="/magic/getsize.js"></script>
+  <script src="/magic/getreview.js"></script>  
+</body>
+
+</html>

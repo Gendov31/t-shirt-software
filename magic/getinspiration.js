@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const captionDiv = document.createElement('div');
         captionDiv.className = 'inspiration-caption';
-        captionDiv.textContent = caption;
+        captionDiv.textContent = truncateText(caption, 80);
 
         div.appendChild(img);
         div.appendChild(captionDiv);
@@ -63,3 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('Error loading inspiration items:', error);
   }
 });
+function truncateText(text, maxLength = 100) {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength).trim() + '...';
+}

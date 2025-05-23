@@ -49,6 +49,7 @@
     },
     sceneDescription: '',
     color:'',
+    gender:'',
     style: '',
     size: '',         
     price: 0, 
@@ -84,7 +85,28 @@
       colorError.style.display = 'none';
     }
   });
+  // Функция за скриване на грешката при описанието
+sceneDescription.addEventListener('input', () => {
+  formData.sceneDescription = sceneDescription.value;
   
+  // Скрий грешката ако има достатъчно символи
+  const descriptionError = document.getElementById('descriptionError');
+  if (sceneDescription.value.trim().length >= 8) {
+    descriptionError.style.display = 'none';
+    sceneDescription.classList.remove('input-error');
+  }
+});
+
+// Функция за скриване на грешката при избор на тип тениска
+const genderSelection = document.getElementById('shirt-gender');
+const genderError = document.getElementById('genderError');
+
+genderSelection.addEventListener('change', () => {
+  formData.gender = genderSelection.value;
+  if (genderSelection.value) {
+    genderError.style.display = 'none';
+  }
+});
   
   // Update progress bar and active steps
   function updateProgress(step) {
@@ -306,9 +328,9 @@
     // Step 2 Next
     step2Next.addEventListener('click', () => {
       const description = sceneDescription.value.trim();
-      const selectedStyle = document.querySelector('.style-option.selected');
       const descriptionError = document.getElementById('descriptionError');
-      const styleError = document.getElementById('styleError');
+      const genderSelection = document.getElementById('shirt-gender'); // 👈 вземаме полето за тип тениска
+      const genderError = document.getElementById('genderError'); // 👈 вземаме полето за грешка
     
       let hasError = false;
     
@@ -316,38 +338,41 @@
       if (description.length < 8) {
         descriptionError.style.display = 'block';
         sceneDescription.classList.add('input-error');
-        sceneDescription.scrollIntoView({ behavior: 'smooth', block: 'center' }); // 👈 scroll to description
+        sceneDescription.scrollIntoView({ behavior: 'smooth', block: 'center' });
         hasError = true;
       } else {
         descriptionError.style.display = 'none';
         sceneDescription.classList.remove('input-error');
       }
     
-      // Style validation
-      if (!selectedStyle) {
-        styleError.style.display = 'block';
-        hasError = true;
-      } else {
-        styleError.style.display = 'none';
-      }
+      // Color validation
       if (!colorSelection.value) {
         colorError.style.display = 'block';
-        colorSelection.scrollIntoView({ behavior: 'smooth', block: 'center' }); // по избор
+        colorSelection.scrollIntoView({ behavior: 'smooth', block: 'center' });
         hasError = true;
       } else {
         colorError.style.display = 'none';
+      }
+    
+      // Gender validation 👇
+      if (!genderSelection.value) {
+        genderError.style.display = 'block';
+        genderSelection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        hasError = true;
+      } else {
+        genderError.style.display = 'none';
       }
     
       if (hasError) return;
     
       // Save to formData
       formData.sceneDescription = description;
-      formData.style = selectedStyle.dataset.name;
       formData.color = colorSelection.value;
-
+      formData.gender = genderSelection.value; // 👈 запазваме и пола на тениската
     
       navigateToStep(3);
     });
+    
     
     
     // Step 3 Back
@@ -381,6 +406,8 @@ function setupPreviewGeneration() {
   const step3Next = document.getElementById('step3-next');
   
   let isGenerating = false;
+  let progressInterval;
+  let startTime;
 
   generatePreview.addEventListener('click', async () => {
     
@@ -439,52 +466,109 @@ function setupPreviewGeneration() {
     loadingImage.style.filter = 'blur(20px)';
     loadingImage.style.transition = 'filter 60s linear';
     
-    // Add loading text
+    // Create progress container
+    const progressContainer = document.createElement('div');
+    progressContainer.style.width = '80%';
+    progressContainer.style.marginTop = '20px';
+    progressContainer.style.textAlign = 'center';
+    
+    // Add progress bar background
+    const progressBarBg = document.createElement('div');
+    progressBarBg.style.width = '100%';
+    progressBarBg.style.height = '8px';
+    progressBarBg.style.backgroundColor = '#e0e0e0';
+    progressBarBg.style.borderRadius = '4px';
+    progressBarBg.style.overflow = 'hidden';
+    progressBarBg.style.marginBottom = '15px';
+    
+    // Add progress bar fill
+    const progressBarFill = document.createElement('div');
+    progressBarFill.style.height = '100%';
+    progressBarFill.style.backgroundColor = '#3498db';
+    progressBarFill.style.width = '0%';
+    progressBarFill.style.transition = 'width 0.3s ease';
+    progressBarFill.style.borderRadius = '4px';
+    
+    progressBarBg.appendChild(progressBarFill);
+    
+    // Add loading text with percentage
     const loadingText = document.createElement('p');
-    loadingText.textContent = 'Създаване на визуализация...';
-    loadingText.style.marginTop = '20px';
+    loadingText.textContent = 'Създаване на визуализация... 0%';
+    loadingText.style.margin = '0 0 10px 0';
     loadingText.style.color = '#333';
     loadingText.style.fontWeight = 'bold';
+    loadingText.style.fontSize = '16px';
     
-    // Add spinner
-    const spinner = document.createElement('div');
-    spinner.className = 'loading-spinner';
-    spinner.style.width = '40px';
-    spinner.style.height = '40px';
-    spinner.style.border = '4px solid rgba(0, 0, 0, 0.1)';
-    spinner.style.borderRadius = '50%';
-    spinner.style.borderTop = '4px solid #3498db';
-    spinner.style.animation = 'spin 1s linear infinite';
-    spinner.style.marginTop = '15px';
+    // Add time estimate text
+    const timeText = document.createElement('p');
+    timeText.textContent = 'Очаквано време: до 1 минута';
+    timeText.style.margin = '0';
+    timeText.style.color = '#666';
+    timeText.style.fontSize = '14px';
     
-    // Add keyframe animation for spinner
-    if (!document.getElementById('spinner-style')) {
-      const style = document.createElement('style');
-      style.id = 'spinner-style';
-      style.textContent = `
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `;
-      document.head.appendChild(style);
-    }
+    
 
+    // Assemble the loading animation
+    progressContainer.appendChild(loadingText);
+    progressContainer.appendChild(progressBarBg);
+    progressContainer.appendChild(timeText);
+  
+    
     loadingAnimation.appendChild(loadingImage);
-    loadingAnimation.appendChild(loadingText);
-    loadingAnimation.appendChild(spinner);
+    loadingAnimation.appendChild(progressContainer);
     previewLoading.appendChild(loadingAnimation);
 
     // Start the unblur animation
     setTimeout(() => {
       loadingImage.style.filter = 'blur(10px)';
     }, 100);
+
+    // Start progress simulation
+    startTime = Date.now();
+    let progress = 0;
+    
+    progressInterval = setInterval(() => {
+      const elapsed = (Date.now() - startTime) / 1000; // elapsed time in seconds
+      const maxTime = 60; // 60 seconds max
+      
+      // Simulate realistic progress curve (faster at start, slower at end)
+      const rawProgress = Math.min(elapsed / maxTime, 0.95); // Cap at 95% until actual completion
+      progress = Math.floor(rawProgress * 100);
+      
+      // Update progress bar
+      progressBarFill.style.width = `${progress}%`;
+      
+      // Update text based on progress
+      if (progress < 30) {
+        loadingText.textContent = `Анализиране на снимката... ${progress}%`;
+      } else if (progress < 60) {
+        loadingText.textContent = `Генериране на модел... ${progress}%`;
+      } else if (progress < 90) {
+        loadingText.textContent = `Прилагане на стил... ${progress}%`;
+      } else {
+        loadingText.textContent = `Финализиране... ${progress}%`;
+      }
+      
+      // Update time estimate
+      const remainingTime = Math.max(0, maxTime - elapsed);
+      if (remainingTime > 30) {
+        timeText.textContent = `Остават: около ${Math.ceil(remainingTime)} секунди`;
+      } else if (remainingTime > 5) {
+        timeText.textContent = `Остават: ${Math.ceil(remainingTime)} секунди`;
+      } else if (remainingTime > 0) {
+        timeText.textContent = 'Почти готово...';
+      } else {
+        timeText.textContent = 'Обработване на резултата...';
+      }
+      
+    }, 500); // Update every 500ms for smooth animation
       
     const formDataToSend = new FormData();
     formDataToSend.append('PersonPhoto', formData.photo.file);
     formDataToSend.append('sceneDescription', formData.sceneDescription || '');
     formDataToSend.append('imgStyle', formData.style || '');
     formDataToSend.append('chosenColor', formData.color || '');
+    formDataToSend.append('chosenGender', formData.gender || '');
     
     try {
       const response = await fetch('https://n8n.enchantiya.com/webhook/1e27fb75-6226-452c-9cf0-7fa3cae92bd4', {
@@ -497,6 +581,16 @@ function setupPreviewGeneration() {
       }
   
       const result = await response.json();
+
+      // Clear progress interval
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
+
+      // Complete the progress animation
+      progressBarFill.style.width = '100%';
+      loadingText.textContent = 'Готово! 100%';
+      timeText.textContent = 'Визуализацията е създадена успешно!';
 
       // Check if the response has the expected format
       if (!result.image) {
@@ -545,37 +639,50 @@ function setupPreviewGeneration() {
         }
       }
 
-      // Hide loading and display the preview image
-      previewLoading.style.display = 'none';
-      previewResult.style.display = 'flex';
-  
-      const img = document.getElementById("caricaturePreview");
-      img.src = previewImageUrl;
-      img.alt = 'Generated Preview';
-      
-      // Add regenerate button if needed
-
-      
-      // Enable the next button since we have a preview
-      if (step3Next) {
-        step3Next.disabled = false;
-      }
+      // Wait a moment to show completion before hiding
+      setTimeout(() => {
+        // Hide loading and display the preview image
+        previewLoading.style.display = 'none';
+        previewResult.style.display = 'flex';
+    
+        const img = document.getElementById("caricaturePreview");
+        img.src = previewImageUrl;
+        img.alt = 'Generated Preview';
+        
+        // Enable the next button since we have a preview
+        if (step3Next) {
+          step3Next.disabled = false;
+        }
+      }, 1000); // Show completion for 1 second
       
     } catch (error) {
       console.error('Error generating preview:', error);
+      
+      // Clear progress interval
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
+      
       previewLoading.style.display = 'none';
       previewErrorContainer.style.display = 'flex';
       previewError.textContent = 'Не успяхме да генерираме модел. Моля, опитайте отново.';
     } finally {
       isGenerating = false;
       generatePreview.disabled = false;
+      
+      // Clear progress interval if still running
+      if (progressInterval) {
+        clearInterval(progressInterval);
+      }
     }
   });
   
-
-
-  
   retryPreview.addEventListener('click', () => {
+    // Clear any existing progress interval
+    if (progressInterval) {
+      clearInterval(progressInterval);
+    }
+    
     previewErrorContainer.style.display = 'none';
     previewPlaceholder.style.display = 'flex';
     generatePreview.style.display = 'inline-block';
@@ -593,6 +700,11 @@ function setupPreviewGeneration() {
   
   // Function to reset preview
   function resetPreview() {
+    // Clear any existing progress interval
+    if (progressInterval) {
+      clearInterval(progressInterval);
+    }
+    
     // Hide preview result
     previewResult.style.display = 'none';
     generatePreview.style.display = 'inline-block';
@@ -727,11 +839,10 @@ function setupOrderSubmission() {
     orderModal.innerHTML = `
       <div class="order-processing">
         <p>Обработка на поръчката...</p>
-        <div class="loading-spinner"></div>
       </div>
     `;
     
-    console.log("📦 Финален formData ПЪРВИ ПРЕДИ TRY:", formData);
+
     
     try {
       const fd = new FormData();
@@ -742,6 +853,7 @@ function setupOrderSubmission() {
       fd.append('sceneDescription', formData.sceneDescription);
       fd.append('imgStyle', formData.style);
       fd.append('chosenColor', formData.color);
+      fd.append('chosenGender', formData.gender);
       fd.append('fullName', formData.contactInfo.name);
       fd.append('email', formData.contactInfo.email);
       fd.append('phone', normalizedPhone);
@@ -923,12 +1035,7 @@ function setupOrderSubmission() {
   
   
   
-  
-  
-  // Store scene description when user types
-  sceneDescription.addEventListener('input', () => {
-    formData.sceneDescription = sceneDescription.value;
-  });
+
   
   // Initialize form on page load
   document.addEventListener('DOMContentLoaded', () => {

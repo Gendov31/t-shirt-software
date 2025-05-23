@@ -92,9 +92,9 @@
             Описанието трябва да е поне 8 символа.
           </div>
           <div class="form-group">
-            <label for="color-selection">Избери цвят</label>
+            <label for="color-selection">Избери цвят на тениската</label>
             <select id="color-selection" required>
-              <option value="">-- Избери цвят --</option>
+              <option value="">- Избери цвят -</option>
               <option value="white">Бял</option>
               <option value="black">Черен</option>
             </select>
@@ -102,18 +102,23 @@
               Моля, избери цвят.
             </div>
           </div>
+          <div class="form-group">
+            <label for="shirt-gender">Избери тип на тениска</label>
+            <select id="shirt-gender" required>
+              <option value="">- Избери тип -</option>
+              <option value="male">Мъжка</option>
+              <option value="female">Женска</option>
+            </select>
+            <div id="genderError" style="display:none; color: red; margin-top: 5px;">
+              Моля, избери тип тениска.
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
-          <label>Идеи за вдъхновение</label>
-          <p class="inspiration-tip">Кликни върху изображение, за да използваш описанието му</p>
+          <label>Последно генерирани тениски</label>
+          <p class="inspiration-tip" style="color:rgb(23, 22, 22);">Кликни върху изображение ако искаш да използваш описанието му</p>
           <div class="inspiration-gallery" id="inspiration-gallery"></div>
-        </div>
-
-        <div class="form-group">
-          <label for="caricature-style">Стил на карикатурата</label>
-          <div class="style-options" id="style-options"></div>
-          <div id="styleError" style="display:none; color: red;">Моля, изберете стил.</div>
         </div>
 
         <div class="form-nav">

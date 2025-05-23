@@ -838,7 +838,7 @@ function setupOrderSubmission() {
     orderModal.style.display = 'flex';
     orderModal.innerHTML = `
       <div class="order-processing">
-        <p>Обработка на поръчката...</p>
+        <p style="color: white;">Обработка на поръчката... (може да отнеме до 1 минута)</p>
       </div>
     `;
     

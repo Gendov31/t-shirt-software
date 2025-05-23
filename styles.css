@@ -882,6 +882,7 @@
   padding: 20px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   max-width: 300px; /* Fixed width for each slide */
+  min-width: 300px;
   font-family: sans-serif;
   height: auto; /* Allow height to adjust to content */
   display: flex;
